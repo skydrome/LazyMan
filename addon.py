@@ -4,7 +4,7 @@ import os
 import socket
 import sys
 import time
-import urllib.request
+from urllib.request import urlopen
 from urllib.parse import parse_qsl
 
 import xbmcaddon
@@ -46,8 +46,8 @@ def listgrouphighlights(provider, group):
 def listhighlights(provider):
     items = []
     for hg in get_highlights(config, provider):
-        listItem = xbmcgui.ListItem(label=str(hg.title))
-        listItem.setInfo(type="video", infoLabels={"title": str(hg.title), "mediatype": 'video'})
+        listItem = xbmcgui.ListItem(label=hg.title)
+        listItem.setInfo(type="video", infoLabels={"title": hg.title, "mediatype": 'video'})
         url = '{0}?action=listgrouphighlights&group={1}&provider={2}'.format(addonUrl, hg.title, provider)
         items.append((url, listItem, True))
 
@@ -58,7 +58,7 @@ def listyears(provider):
     items = []
     for y in utils.years(provider):
         listItem = xbmcgui.ListItem(label=str(y))
-        listItem.setInfo(type="video", infoLabels={"title": str(y), "mediatype": 'video'})
+        listItem.setInfo(type="video", infoLabels={"title": y, "mediatype": 'video'})
         url = '{0}?action=listmonths&year={1}&provider={2}'.format(addonUrl, y, provider)
         items.append((url, listItem, True))
 
@@ -83,7 +83,7 @@ def listdays(year, month, provider):
     items = []
     for d in utils.days(year, month):
         listItem = xbmcgui.ListItem(label=str(d))
-        listItem.setInfo(type="video", infoLabels={"title": str(d), "mediatype": 'video'})
+        listItem.setInfo(type="video", infoLabels={"title": d, "mediatype": 'video'})
         url = '{0}?action=listgames&year={1}&month={2}&day={3}&provider={4}'.format(addonUrl, year, month, d, provider)
         items.append((url, listItem, True))
 
@@ -98,6 +98,7 @@ def listproviders():
         listItem.setInfo(type="video", infoLabels={"title": provider, "mediatype": 'video'})
         url = '{0}?action=listtodaysgames&provider={1}'.format(addonUrl, provider)
         items.append((url, listItem, True))
+
     ok = xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
 
@@ -110,6 +111,7 @@ def listgames(date, provider, previous=False, highlights=False):
         listItem.setInfo(type="video", infoLabels={"title": label, "mediatype": 'video'})
         url = '{0}?action=feeds&game={1}&date={2}&provider={3}'.format(addonUrl, g.id, date, provider)
         items.append((url, listItem, True))
+
     if len(items) == 0:
         xbmcgui.Dialog().ok(addonName, "No games scheduled today")
 
@@ -124,6 +126,7 @@ def listgames(date, provider, previous=False, highlights=False):
         listItem.setInfo(type="video", infoLabels={"title": "Previous", "mediatype": 'video'})
         url = '{0}?action=listyears&provider={1}'.format(addonUrl, provider)
         items.append((url, listItem, True))
+
     ok = xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
     #log("Added %d games" % len(items))
@@ -144,7 +147,7 @@ def playhighlight(url):
     #log("Trying to play URL: %s" % url)
     mediaAuth = utils.salt()
     if utils.head(url, dict(mediaAuth=mediaAuth)):
-        completeUrl = url + ("|Cookie=mediaAuth%%3D%%22%s%%22" % (mediaAuth))
+        completeUrl = "%s|Cookie=mediaAuth%%3D%%22%s%%22" % (url, mediaAuth)
         xbmc.Player().play(completeUrl)
 
 def playgame(date, feedId, provider, state):
@@ -155,40 +158,40 @@ def playgame(date, feedId, provider, state):
             "720p60": "5600K/5600_{0}.m3u8"
         }
         current = addon.getSetting("quality")
-        if current is None or current == "":
+        if current == 'master':
             return masterUrl
         else:
             m3u8Path = qualityUrlDict.get(current, "3500K/3500_{0}.m3u8").format(
                 'slide' if state in ('In Progress', 'Scheduled', 'Pre-Game')
-                else 'complete-trimmed'
-            )
+                else 'complete-trimmed')
             #log("Quality selected: %s, adjusting to %s" % (current, m3u8Path))
             return masterUrl.rsplit('/', 1)[0] + "/" + m3u8Path
 
     def xbmcPlayer(url, mediaAuth):
         #log("Trying to play URL: %s" % url)
-        completeUrl = url + ("|Cookie=mediaAuth%%3D%%22%s%%22" % (mediaAuth))
-        xbmc.Player().play(adjustQuality(url) + ("|Cookie=mediaAuth%%3D%%22%s%%22" % (mediaAuth)))
+        completeUrl = "%s|Cookie=mediaAuth%%3D%%22%s%%22" % (url, mediaAuth)
+        xbmc.Player().play(adjustQuality("%s|Cookie=mediaAuth%%3D%%22%s%%22" % (url, mediaAuth)))
 
-    def getContentUrl(withCdn=True):
-        actualCdn = cdn if withCdn else ""
+    def getContentUrl():
         if provider == "NHL.tv":
-            return "http://freegamez.ga/m3u8/%s/%s%s" % (date, feedId, actualCdn)
+            return "http://freegamez.ga/m3u8/%s/%s%s" % (date, feedId, cdn)
         else:
-            return "http://freegamez.ga/mlb/m3u8/%s/%s%s" % (date, feedId, actualCdn)
+            return "http://freegamez.ga/mlb/m3u8/%s/%s%s" % (date, feedId, cdn)
 
     cdn = 'akc' if addon.getSetting("cdn") == "Akamai" else 'l3c'
     contentUrl = getContentUrl()
+
     #log("Trying to resolve from content-url: %s" % contentUrl)
     if not utils.head(contentUrl):
-        if not utils.head(contentUrl):
-           log("Invalid content-url: %s" % contentUrl)
-           xbmcgui.Dialog().ok(addonName, "Game not available yet")
-           return
-    response = urllib.request.urlopen(contentUrl)
+        log("Invalid content-url: %s" % contentUrl)
+        xbmcgui.Dialog().ok(addonName, "Game not available yet")
+        return
+
+    response = urlopen(contentUrl)
     playUrl = response.read().decode('utf-8').replace('l3c', cdn)
     #log("Play URL resolved to: %s" % playUrl)
     mediaAuthSalt = utils.salt()
+
     if utils.get(playUrl, dict(mediaAuth=mediaAuthSalt)):
         xbmcPlayer(playUrl, mediaAuthSalt)
     else:
@@ -228,15 +231,15 @@ def sanityCheck():
     since = addon.getSetting("sanityChecked")
     if since == "" or calendar.timegm(time.gmtime()) - (3600*24) > int(since):
         providers = config.get("LazyMan", "Providers").split(",")
+        icon = os.path.join(addonPath, 'resources', 'icon.png')
         for service in providers:
-            xbmc.executebuiltin("Notification(LazyMan,Verifying " + service + ")")
+            xbmc.executebuiltin("Notification(LazyMan,Verifying %s,,%s)" % (service, icon))
             hostNames = config.get(service, "Host").split(",")
             lazymanServer = socket.gethostbyname('freegamez.ga')
             for h in hostNames:
                 resolved = socket.gethostbyname(h)
                 if resolved != lazymanServer:
-                    xbmcgui.Dialog().ok(addonName, "'{}' doesn't resolve to the Lazyman server.".format(h), "Update your hosts file to point to " + lazymanServer)
-                    xbmc.executebuiltin("XBMC.Container.Update(path,replace)")
+                    xbmcgui.Dialog().ok(addonName, "%s doesn't resolve to the Lazyman server." % h, "Update your hosts file to point to %s" % lazymanServer)
                 else:
                     addon.setSetting("sanityChecked", str(calendar.timegm(time.gmtime())))
 

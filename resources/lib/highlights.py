@@ -1,12 +1,12 @@
 import json
-import urllib.request
+from urllib.request import urlopen
 from configparser import NoOptionError
 
 
 def get_highlights(config, provider):
     data = None
     try:
-        response = urllib.request.urlopen(config.get(provider, "HighlightsUrl"))
+        response = urlopen(config.get(provider, "HighlightsUrl"))
         data = json.loads(response.read())
     except NoOptionError:
         return []

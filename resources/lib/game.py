@@ -1,5 +1,5 @@
 import json
-import urllib.request
+from urllib.request import urlopen
 
 
 class FeedBuilder:
@@ -27,11 +27,13 @@ class FeedBuilder:
                 return Other(item["feedName"], item["callLetters"], idProvider(item))
             else:
                 return NonViewable(item["callLetters"], idProvider(item))
+
         if "media" in content:
             return [fromItem(item)
                 for stream in content["media"]["epg"] if stream["title"] == streamProvider
                 for item in stream["items"]]
-        else: return []
+        else:
+            return []
 
 class Feed:
     _tvStation = None
@@ -40,10 +42,8 @@ class Feed:
     def __init__(self, tvStation, mediaId):
         self._tvStation = tvStation
         self._mediaId = mediaId
-
     def viewable(self):
         return True
-
     @property
     def tvStation(self):
         return self._tvStation
@@ -60,10 +60,8 @@ class Home(Feed):
 class NonViewable(Feed):
     def __init__(self, tvStation, mediaId):
         Feed.__init__(self, tvStation, mediaId)
-
     def __repr__(self):
         return "NonViewable"
-
     def viewable(self):
         return False
 
@@ -178,7 +176,7 @@ class GameBuilder:
         u = config.get(provider, "GameScheduleUrl", raw=True) % (date, date)
         #from .utils import log
         #log("Fetching games from: %s" % u)
-        response = urllib.request.urlopen(u)
+        response = urlopen(u)
         data = json.loads(response.read())
         if data["totalItems"] <= 0 or len(data["dates"]) == 0:
             return []
