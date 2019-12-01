@@ -40,7 +40,7 @@ def listgrouphighlights(provider, group):
             url = '{0}?action=playhighlight&url={1}'.format(addonUrl, h.playbackUrl)
             items.append((url, listItem, True))
 
-    ok = xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
+    xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
 
 def listhighlights(provider):
@@ -51,7 +51,7 @@ def listhighlights(provider):
         url = '{0}?action=listgrouphighlights&group={1}&provider={2}'.format(addonUrl, hg.title, provider)
         items.append((url, listItem, True))
 
-    ok = xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
+    xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
 
 def listyears(provider):
@@ -62,7 +62,7 @@ def listyears(provider):
         url = '{0}?action=listmonths&year={1}&provider={2}'.format(addonUrl, y, provider)
         items.append((url, listItem, True))
 
-    ok = xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
+    xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
 
 def highlights(provider):
@@ -76,7 +76,7 @@ def listmonths(year, provider):
         url = '{0}?action=listdays&year={1}&month={2}&provider={3}'.format(addonUrl, year, m, provider)
         items.append((url, listItem, True))
 
-    ok = xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
+    xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
 
 def listdays(year, month, provider):
@@ -87,7 +87,7 @@ def listdays(year, month, provider):
         url = '{0}?action=listgames&year={1}&month={2}&day={3}&provider={4}'.format(addonUrl, year, month, d, provider)
         items.append((url, listItem, True))
 
-    ok = xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
+    xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
 
 def listproviders():
@@ -99,7 +99,7 @@ def listproviders():
         url = '{0}?action=listtodaysgames&provider={1}'.format(addonUrl, provider)
         items.append((url, listItem, True))
 
-    ok = xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
+    xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
 
 def listgames(date, provider, previous=False, highlights=False):
@@ -127,7 +127,7 @@ def listgames(date, provider, previous=False, highlights=False):
         url = '{0}?action=listyears&provider={1}'.format(addonUrl, provider)
         items.append((url, listItem, True))
 
-    ok = xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
+    xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
     #log("Added %d games" % len(items))
 
@@ -140,7 +140,7 @@ def listfeeds(game, date, provider):
         url = '{0}?action=play&date={1}&feedId={2}&provider={3}&state={4}'.format(addonUrl, date, f.mediaId, provider, game.gameState)
         items.append((url, listItem, False))
 
-    ok = xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
+    xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
 
 def playhighlight(url):
