@@ -4,12 +4,17 @@ import time
 from datetime import datetime, timedelta
 
 import requests
+import xbmc
 
 from pytz import reference, timezone
 
 
 losangeles = timezone('America/Los_Angeles')
 localtz = reference.LocalTimezone()
+
+def log(message):
+    level=xbmc.LOGNOTICE
+    xbmc.log("LazyMan: {0}".format(message), level=level)
 
 def today(tz=losangeles):
     date = datetime.now()

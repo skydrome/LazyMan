@@ -1,8 +1,6 @@
 import json
 import urllib.request
 
-import xbmc
-
 
 class FeedBuilder:
 
@@ -168,6 +166,8 @@ class GameBuilder:
     def nhlTvRemaining(state, game):
         if "In Progress" in state:
             return game["linescore"]["currentPeriodOrdinal"] + " " + game["linescore"]["currentPeriodTimeRemaining"]
+        elif state == "Pre-Game":
+            return "Pre Game"
         elif state == "Final":
             return "Final"
         else:
@@ -176,7 +176,8 @@ class GameBuilder:
     @staticmethod
     def fromDate(config, date, remaining, provider):
         u = config.get(provider, "GameScheduleUrl", raw=True) % (date, date)
-        xbmc.log("Fetching games from: '" + u + "'", xbmc.LOGNOTICE)
+        #from .utils import log
+        #log("Fetching games from: %s" % u)
         response = urllib.request.urlopen(u)
         data = json.loads(response.read())
         if data["totalItems"] <= 0 or len(data["dates"]) == 0:
