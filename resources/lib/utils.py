@@ -55,9 +55,9 @@ def salt():
     return ''.join([garbled[int(i * random.random()) % len(garbled)] for i in range(0, 241)])
 
 def head(url, cookies=dict()):
-    print(("Checking (HEAD) url %s" % (url)))
-    return requests.request('HEAD', url, cookies=cookies).status_code < 400
+    ret = requests.head(url, cookies=cookies)
+    return ret.status_code < 400
 
 def get(url, cookies=dict()):
-    print(("Checking (GET) url %s" % (url)))
-    return requests.request('GET', url, cookies=cookies).status_code < 400
+    ret = requests.get(url, cookies=cookies)
+    return ret.status_code < 400

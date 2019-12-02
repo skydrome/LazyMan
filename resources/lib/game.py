@@ -1,4 +1,5 @@
 import json
+import requests
 from urllib.request import urlopen
 
 
@@ -176,8 +177,8 @@ class GameBuilder:
         u = config.get(provider, "GameScheduleUrl", raw=True) % (date, date)
         #from .utils import log
         #log("Fetching games from: %s" % u)
-        response = urlopen(u)
-        data = json.loads(response.read())
+        response = requests.get(u)
+        data = response.json()
         if data["totalItems"] <= 0 or len(data["dates"]) == 0:
             return []
         games = data["dates"][0]["games"]

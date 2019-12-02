@@ -3,6 +3,7 @@
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.22.0"/>
+    <import addon="script.module.requests-cache" version="0.4.13"/>
     <import addon="script.module.pytz" version="2014.2"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">

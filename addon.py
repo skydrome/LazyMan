@@ -4,12 +4,13 @@ import os
 import socket
 import sys
 import time
-from urllib.request import urlopen
 from urllib.parse import parse_qsl
 
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
+import requests
+import requests_cache
 from resources.lib import utils
 from resources.lib.utils import log
 from resources.lib.game import GameBuilder
@@ -26,6 +27,11 @@ iniFilePath = os.path.join(addonPath, 'resources', 'lazyman.ini')
 config = configparser.ConfigParser()
 config.read(iniFilePath)
 
+requests_cache.install_cache(os.path.join(addonPath, 'resources', 'cache'), backend='sqlite', expire_after=90)
+
+def create_listitem(label):
+    return xbmcgui.ListItem(label=str(label), offscreen=True)
+
 def games(date, provider):
     remaining = GameBuilder.nhlTvRemaining if provider == "NHL.tv" else GameBuilder.mlbTvRemaining
     return GameBuilder.fromDate(config, date, remaining, provider)
@@ -35,7 +41,7 @@ def listgrouphighlights(provider, group):
     for hg in [x for x in get_highlights(config, provider) if x.title == group]:
         for h in hg.highlights:
             label = "{0} ({1})".format(h.blurb, h.duration)
-            listItem = xbmcgui.ListItem(label=label)
+            listItem = create_listitem(label)
             listItem.setInfo(type="video", infoLabels={"title": label, "mediatype": 'video'})
             url = '{0}?action=playhighlight&url={1}'.format(addonUrl, h.playbackUrl)
             items.append((url, listItem, True))
@@ -46,7 +52,7 @@ def listgrouphighlights(provider, group):
 def listhighlights(provider):
     items = []
     for hg in get_highlights(config, provider):
-        listItem = xbmcgui.ListItem(label=hg.title)
+        listItem = create_listitem(hg.title)
         listItem.setInfo(type="video", infoLabels={"title": hg.title, "mediatype": 'video'})
         url = '{0}?action=listgrouphighlights&group={1}&provider={2}'.format(addonUrl, hg.title, provider)
         items.append((url, listItem, True))
@@ -57,7 +63,7 @@ def listhighlights(provider):
 def listyears(provider):
     items = []
     for y in utils.years(provider):
-        listItem = xbmcgui.ListItem(label=str(y))
+        listItem = create_listitem(y)
         listItem.setInfo(type="video", infoLabels={"title": y, "mediatype": 'video'})
         url = '{0}?action=listmonths&year={1}&provider={2}'.format(addonUrl, y, provider)
         items.append((url, listItem, True))
@@ -65,13 +71,10 @@ def listyears(provider):
     xbmcplugin.addDirectoryItems(addonHandle, items, len(items))
     xbmcplugin.endOfDirectory(addonHandle)
 
-def highlights(provider):
-    items = []
-
 def listmonths(year, provider):
     items = []
     for (mn, m) in utils.months(year):
-        listItem = xbmcgui.ListItem(label=mn)
+        listItem = create_listitem(mn)
         listItem.setInfo(type="video", infoLabels={"title": mn, "mediatype": 'video'})
         url = '{0}?action=listdays&year={1}&month={2}&provider={3}'.format(addonUrl, year, m, provider)
         items.append((url, listItem, True))
@@ -82,7 +85,7 @@ def listmonths(year, provider):
 def listdays(year, month, provider):
     items = []
     for d in utils.days(year, month):
-        listItem = xbmcgui.ListItem(label=str(d))
+        listItem = create_listitem(d)
         listItem.setInfo(type="video", infoLabels={"title": d, "mediatype": 'video'})
         url = '{0}?action=listgames&year={1}&month={2}&day={3}&provider={4}'.format(addonUrl, year, month, d, provider)
         items.append((url, listItem, True))
@@ -94,7 +97,7 @@ def listproviders():
     items = []
     providers = config.get("LazyMan", "Providers").split(",")
     for provider in providers:
-        listItem = xbmcgui.ListItem(label=provider)
+        listItem = create_listitem(provider)
         listItem.setInfo(type="video", infoLabels={"title": provider, "mediatype": 'video'})
         url = '{0}?action=listtodaysgames&provider={1}'.format(addonUrl, provider)
         items.append((url, listItem, True))
@@ -107,7 +110,7 @@ def listgames(date, provider, previous=False, highlights=False):
     dategames = games(date, provider)
     for g in dategames:
         label = "%s vs. %s [%s]" % (g.awayFull, g.homeFull, g.remaining if g.remaining != "N/A" else utils.asCurrentTz(date, g.time))
-        listItem = xbmcgui.ListItem(label=label)
+        listItem = create_listitem(label)
         listItem.setInfo(type="video", infoLabels={"title": label, "mediatype": 'video'})
         url = '{0}?action=feeds&game={1}&date={2}&provider={3}'.format(addonUrl, g.id, date, provider)
         items.append((url, listItem, True))
@@ -116,13 +119,13 @@ def listgames(date, provider, previous=False, highlights=False):
         xbmcgui.Dialog().ok(addonName, "No games scheduled today")
 
     if highlights:
-        listItem = xbmcgui.ListItem(label="Highlights")
+        listItem = create_listitem('Highlights')
         listItem.setInfo(type="video", infoLabels={"title": "Highlights", "mediatype": 'video'})
         url = '{0}?action=listhighlights&provider={1}'.format(addonUrl, provider)
         items.append((url, listItem, True))
 
     if previous:
-        listItem = xbmcgui.ListItem(label="Previous")
+        listItem = create_listitem('Previous')
         listItem.setInfo(type="video", infoLabels={"title": "Previous", "mediatype": 'video'})
         url = '{0}?action=listyears&provider={1}'.format(addonUrl, provider)
         items.append((url, listItem, True))
@@ -135,7 +138,7 @@ def listfeeds(game, date, provider):
     items = []
     for f in [f for f in game.feeds if f.viewable()]:
         label = str(f)
-        listItem = xbmcgui.ListItem(label=label)
+        listItem = create_listitem(label)
         listItem.setInfo(type="video", infoLabels={"title": label, "mediatype": 'video'})
         url = '{0}?action=play&date={1}&feedId={2}&provider={3}&state={4}'.format(addonUrl, date, f.mediaId, provider, game.gameState)
         items.append((url, listItem, False))
@@ -187,12 +190,12 @@ def playgame(date, feedId, provider, state):
         xbmcgui.Dialog().ok(addonName, "Game not available yet")
         return
 
-    response = urlopen(contentUrl)
-    playUrl = response.read().decode('utf-8').replace('l3c', cdn)
+    response = requests.get(contentUrl)
+    playUrl = response.text
     #log("Play URL resolved to: %s" % playUrl)
     mediaAuthSalt = utils.salt()
 
-    if utils.get(playUrl, dict(mediaAuth=mediaAuthSalt)):
+    if utils.head(playUrl, dict(mediaAuth=mediaAuthSalt)):
         xbmcPlayer(playUrl, mediaAuthSalt)
     else:
         otherCdn = 'akc' if cdn == 'l3c' else 'l3c'
