@@ -4,6 +4,7 @@ import os
 import socket
 import sys
 import time
+import re
 from urllib.parse import parse_qsl
 
 import xbmcaddon
@@ -18,16 +19,18 @@ from resources.lib.highlights import get_highlights
 
 addonUrl = sys.argv[0]
 addonHandle = int(sys.argv[1])
+addon = xbmcaddon.Addon()
+addonName = "LazyMan"
 addonId = "plugin.video.lazyman.nhl.tv"
-addon = xbmcaddon.Addon(id=addonId)
 addonPath = addon.getAddonInfo('path')
-addonName = addon.getAddonInfo('name')
-sanityChecked = False
+
 iniFilePath = os.path.join(addonPath, 'resources', 'lazyman.ini')
 config = configparser.ConfigParser()
 config.read(iniFilePath)
 
-requests_cache.install_cache(os.path.join(addonPath, 'resources', 'cache'), backend='sqlite', expire_after=90)
+cachePath = os.path.join(addonPath, 'resources', 'cache')
+requests_cache.install_cache(cachePath, backend='sqlite', expire_after=90)
+
 
 def create_listitem(label):
     return xbmcgui.ListItem(label=str(label), offscreen=True)
@@ -135,11 +138,22 @@ def listgames(date, provider, previous=False, highlights=False):
     #log("Added %d games" % len(items))
 
 def listfeeds(game, date, provider):
+
+    def getfeedicon(feed):
+        feed = re.sub('\ \(Home\)|\ \(Away\)|\ \(National\)|\ \(French\)|\ \(Composite\)|\ Camera|\ 2|\+|\-', '', feed)
+        feed = re.sub('ATT*', 'ATT', feed)
+        feed = re.sub('MSG*', 'MSG', feed)
+        feed = re.sub('TVAS2', 'TVAS', feed)
+        #log(feed)
+        return os.path.join(addonPath, 'resources', 'icons', feed + '.png')
+
     items = []
     for f in [f for f in game.feeds if f.viewable()]:
         label = str(f)
         listItem = create_listitem(label)
         listItem.setInfo(type="video", infoLabels={"title": label, "mediatype": 'video'})
+        icon = getfeedicon(label)
+        listItem.setArt({'icon': icon})
         url = '{0}?action=play&date={1}&feedId={2}&provider={3}&state={4}'.format(addonUrl, date, f.mediaId, provider, game.gameState)
         items.append((url, listItem, False))
 
@@ -154,6 +168,7 @@ def playhighlight(url):
         xbmc.Player().play(completeUrl)
 
 def playgame(date, feedId, provider, state):
+
     def adjustQuality(masterUrl):
         qualityUrlDict = {
             "540p":   "2500K/2500_{0}.m3u8",
@@ -190,17 +205,15 @@ def playgame(date, feedId, provider, state):
         xbmcgui.Dialog().ok(addonName, "Game not available yet")
         return
 
-    response = requests.get(contentUrl)
-    playUrl = response.text
+    playUrl = requests.get(contentUrl).text
     #log("Play URL resolved to: %s" % playUrl)
     mediaAuthSalt = utils.salt()
 
-    if utils.head(playUrl, dict(mediaAuth=mediaAuthSalt)):
-        xbmcPlayer(playUrl, mediaAuthSalt)
-    else:
-        otherCdn = 'akc' if cdn == 'l3c' else 'l3c'
-        log("URL [%s] failed on GET, switching CDN from %s to %s" % (playUrl, cdn, otherCdn))
-        xbmcPlayer(playUrl.replace(cdn, otherCdn), mediaAuthSalt)
+    if not utils.head(playUrl, dict(mediaAuth=mediaAuthSalt)):
+        xbmcgui.Dialog().ok(addonName, "Error while contacting server", "Try switching CDN and try again")
+        return
+
+    xbmcPlayer(playUrl, mediaAuthSalt)
 
 def router(paramstring):
     params = dict(parse_qsl(paramstring))
