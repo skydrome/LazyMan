@@ -141,8 +141,8 @@ def listfeeds(game, date, provider):
 
     def getfeedicon(feed):
         feed = re.sub('\ \(Home\)|\ \(Away\)|\ \(National\)|\ \(French\)|\ \(Composite\)|\ Camera|\ 2|\+|\-', '', feed)
-        feed = re.sub('ATT*', 'ATT', feed)
-        feed = re.sub('MSG*', 'MSG', feed)
+        feed = re.sub('ATT.*', 'ATT', feed)
+        feed = re.sub('MSG.*', 'MSG', feed)
         feed = re.sub('TVAS2', 'TVAS', feed)
         #log(feed)
         return os.path.join(addonPath, 'resources', 'icons', feed + '.png')
