@@ -121,6 +121,7 @@ def listgames(date, provider, previous=False, highlights=False):
         items.append((url, listItem, True))
 
     if len(items) == 0:
+        xbmc.executebuiltin('Action(back)')
         xbmcgui.Dialog().ok(addonName, "No games scheduled today")
 
     if highlights:
