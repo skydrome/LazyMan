@@ -175,7 +175,7 @@ class GameBuilder:
         u = config.get(provider, "GameScheduleUrl", raw=True) % (date, date)
         response = requests.get(u)
         data = response.json()
-        #log("Server Response: %s" % data)
+        #log("Server Response: %s" % data, debug=True)
 
         if data["totalItems"] <= 0 or len(data["dates"]) == 0:
             return []
