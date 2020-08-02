@@ -6,7 +6,6 @@ import Objects.Proxy;
 import Objects.Streamlink;
 import Objects.Time;
 import Objects.Web;
-import Util.AutoUpdate;
 import Util.CenterTextCellRenderer;
 import Util.EditHosts;
 import Util.IconTextCellRemderer;
@@ -161,9 +160,7 @@ public final class MainGUI extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
-        guidesMI = new javax.swing.JMenuItem();
         AboutMI = new javax.swing.JMenuItem();
-        updateMI = new javax.swing.JMenuItem();
         donateMI = new javax.swing.JMenu();
 
         consolePM.setLabel("popupMenu1");
@@ -564,15 +561,6 @@ public final class MainGUI extends javax.swing.JFrame {
                 jMenu3.setMnemonic(KeyEvent.VK_H);
                 jMenu3.setText("Help");
 
-                guidesMI.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.event.InputEvent.CTRL_MASK));
-                guidesMI.setText("Guides");
-                guidesMI.addActionListener(new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        guidesMIActionPerformed(evt);
-                    }
-                });
-                jMenu3.add(guidesMI);
-
                 AboutMI.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
                 AboutMI.setText("About");
                 AboutMI.addActionListener(new java.awt.event.ActionListener() {
@@ -581,15 +569,6 @@ public final class MainGUI extends javax.swing.JFrame {
                     }
                 });
                 jMenu3.add(AboutMI);
-
-                updateMI.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.CTRL_MASK));
-                updateMI.setText("Update Available");
-                updateMI.addActionListener(new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        updateMIActionPerformed(evt);
-                    }
-                });
-                jMenu3.add(updateMI);
 
                 jMenuBar1.add(jMenu3);
 
@@ -717,14 +696,6 @@ public final class MainGUI extends javax.swing.JFrame {
         a.setLocationRelativeTo(this);
         a.setVisible(true);
     }//GEN-LAST:event_AboutMIActionPerformed
-
-    private void guidesMIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guidesMIActionPerformed
-        OpenURL.open("https://www.reddit.com/r/LazyMan/wiki/index");
-    }//GEN-LAST:event_guidesMIActionPerformed
-
-    private void updateMIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateMIActionPerformed
-        OpenURL.open("https://www.reddit.com/r/LazyMan/wiki/downloads");
-    }//GEN-LAST:event_updateMIActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         CustomIP c = new CustomIP(this, true);
@@ -928,7 +899,6 @@ public final class MainGUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitMI;
     private javax.swing.JComboBox<String> feedCB;
     private javax.swing.JPanel gameSelectionPanel;
-    private javax.swing.JMenuItem guidesMI;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
@@ -956,7 +926,6 @@ public final class MainGUI extends javax.swing.JFrame {
     private javax.swing.JButton refreshBtn1;
     private javax.swing.JCheckBox restartCB;
     private javax.swing.JCheckBox saveStreamCB;
-    private javax.swing.JMenuItem updateMI;
     // End of variables declaration//GEN-END:variables
 
     class newDay extends Thread {
