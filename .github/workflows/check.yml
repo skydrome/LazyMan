@@ -25,7 +25,7 @@ jobs:
 
     - uses: actions/setup-python@master
       with:
-        python-version: 3.7
+        python-version: 3.8
 
     - name: Kodi addon checker
       env:
