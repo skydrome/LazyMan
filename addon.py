@@ -58,6 +58,7 @@ def list_games(date, provider, previous=False, highlight=False):
     if len(dategames) < 1:
         xbmcplugin.endOfDirectory(ADDONHANDLE, succeeded=False)
         xbmcgui.Dialog().ok(ADDONNAME, "No games scheduled today")
+        # SHOWALLDAYS
         if not previous:
             return
 

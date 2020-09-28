@@ -51,7 +51,7 @@ def _requests(session=cacheHr, retries=2):
 def log(message, debug=False):
     if debug is True and DEBUG is False:
         return
-    level = xbmc.LOGNOTICE
+    level = xbmc.LOGINFO
     xbmc.log(f"LazyMan: {message}", level=level)
 
 
