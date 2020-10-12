@@ -36,7 +36,7 @@ class Highlight:
 
 def get_nhl_highlights():
     url = "https://nhl.bamcontent.com/nhl/en/nav/v1/video/connectedDevices/nhl/playstation-v1.json"
-    data = _requests().get(url, timeout=3).json()
+    data = _requests().get(url, timeout=3, verify=False).json()
 
     thumb = None
     highlights = []
@@ -70,7 +70,7 @@ def get_recaps(provider, page):
         for video in data['docs']:
             content = video['asset_id']
             url = f"https://nhl.bamcontent.com/nhl/id/v1/{content}/details/web-v1.json"
-            data = _requests().get(url, timeout=3).json()
+            data = _requests().get(url, timeout=3, verify=False).json()
             try:
                 title = [x for x in data['keywordsAll'] if x['type'] == "calendarEventId"][0]['displayName']
             except:
@@ -192,7 +192,7 @@ def teamSub(url, provider):
         for item in data['docs']:
             content = item['url'].split('c-')[1]
             u = f"https://nhl.bamcontent.com/nhl/id/v1/{content}/details/web-v1.json"
-            data = _requests().get(u, timeout=3).json()
+            data = _requests().get(u, timeout=3, verify=False).json()
 
             title = item['title']
             desc = data['description']
@@ -305,6 +305,6 @@ def random_image(provider):
 
         for item in soup.find_all("img", class_="lazyload"):
             # quality should always be 1284x722
-            items.append(item.get("data-srcset").split()[0])
+            items.append(f"https:{item.get('data-srcset').split()[0]}")
 
     return random.choice(items) if len(items) > 0 else None
