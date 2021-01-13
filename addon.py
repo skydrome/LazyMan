@@ -128,7 +128,7 @@ def get_stream(date, feed, provider, state):
         return f"{masterUrl.rsplit('/', 1)[0]}/{m3u8Path}"
 
     log(f"GameState: {state}", debug=True)
-    url = f"https://{BASE_URL}/mlb/m3u8/{date}/{feed}{CDN}"
+    url = f"http://{BASE_URL}/mlb/m3u8/{date}/{feed}{CDN}"
     contentUrl = url.replace('mlb/', '') if provider == "NHL.tv" else url
 
     log(f"Checking contentUrl: {contentUrl}", debug=True)
