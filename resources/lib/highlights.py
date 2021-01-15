@@ -275,7 +275,7 @@ def random_image(provider):
 
     items = []
     if provider == "NHL.tv":
-        topics = ['277729162', '278387726', '278387530', '277729400']
+        topics = ['277729162', '278387726', '277729400']
         url = f"https://www.nhl.com/news/t-{random.choice(topics)}"
         # ~900kB
         data = _requests(cacheDay).get(url, timeout=3).text
