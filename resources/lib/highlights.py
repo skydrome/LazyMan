@@ -275,13 +275,16 @@ def random_image(provider):
 
     items = []
     if provider == "NHL.tv":
-        topics = ['277729162', '278387726', '277729400']
+        topics = ['277729162', '278387726', '278387530']
         url = f"https://www.nhl.com/news/t-{random.choice(topics)}"
         # ~900kB
-        data = _requests(cacheDay).get(url, timeout=3).text
+        try:
+            data = _requests(cacheDay).get(url, timeout=3).text
+        except:
+            return None
         soup = BeautifulSoup(data, 'html.parser')
 
-        quality = {'Low': '1136', 'High': '2048', 'Max': '2568'}
+        quality = {'Low': '1136', 'High': '2048', 'Max': '2208'}
         size = quality.get(IMG_QUALITY, '1136')
 
         for item in soup.find_all("img", class_="article-sidebar-item__img"):
