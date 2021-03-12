@@ -239,7 +239,7 @@ def get_leaders(provider):
         for d in data['records']:
             title = d['conference']['name']
             desc += f"[B]{title} Conference:[/B]\n"
-            for t in d['teamRecords'][:4]:
+            for t in d['teamRecords'][:6]:
                 title = t['team']['name']
                 points = t['points']
                 desc += f"  - {title} ({points})\n"

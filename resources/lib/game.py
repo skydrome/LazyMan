@@ -1,3 +1,8 @@
+import re
+
+from html import unescape
+from bs4 import BeautifulSoup
+
 from resources.lib.utils import (
     log, today, _requests,
     cacheMin, cacheHr
@@ -90,6 +95,9 @@ class GameBuilder:
                     response = _requests().get(NHL_API[0] + content, timeout=3)
                     try:
                         desc = response.json()['editorial']['preview']['items'][0]['seoDescription']
+                        desc = BeautifulSoup(unescape(desc)).get_text()
+                        desc = re.sub(r"(^>|\.\.\.)", '', desc)
+
                         if size_n is not None:
                             thumb = response.json()['editorial']['preview']['items'][0]['media']['image']['cuts'][size_n]['src']
                     except LookupError:
